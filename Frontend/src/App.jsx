@@ -17,32 +17,27 @@ export default function App() {
   const [creating, setCreating] = useState(false);
   const [createRes, setCreateRes] = useState(null);
   const [createErr, setCreateErr] = useState(null);
-
   const [codeQuery, setCodeQuery] = useState("");
   const [stats, setStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(false);
   const [statsErr, setStatsErr] = useState(null);
 
-  const canSubmit =
-    isValidUrl(form.url) && (form.validity === "" || /^\d+$/.test(form.validity));
+  const canSubmit = form.url.trim() !== "" && (form.validity === "" || /^\d+$/.test(form.validity));
 
-  // Create short URL
+
   async function handleCreate(e) {
     e.preventDefault();
     setCreateErr(null);
     setCreateRes(null);
-
     if (!isValidUrl(form.url)) {
       setCreateErr("Please enter a valid URL including http/https.");
       return;
     }
-
     const body = {
       url: form.url.trim(),
       ...(form.validity ? { validity: Number(form.validity) } : {}),
       ...(form.code ? { code: form.code.trim() } : {}),
     };
-
     setCreating(true);
     try {
       const res = await axios.post(`${API_BASE}/shorten`, body);
@@ -55,17 +50,14 @@ export default function App() {
     }
   }
 
-  // Fetch stats
   async function fetchStats() {
     setStatsErr(null);
     setStats(null);
-
     const sc = codeQuery.trim();
     if (!sc) {
       setStatsErr("Enter a shortcode to fetch stats.");
       return;
     }
-
     setLoadingStats(true);
     try {
       const res = await axios.get(`${API_BASE}/stats/${encodeURIComponent(sc)}`);
@@ -77,7 +69,6 @@ export default function App() {
     }
   }
 
-  // Info for created URL
   const createdInfo = useMemo(() => {
     if (!createRes) return null;
     return {
@@ -90,38 +81,51 @@ export default function App() {
   }, [createRes]);
 
   return (
-    <div>
-      <h1>URL Shortener</h1>
-
-      {/* Create Short URL */}
-      <form onSubmit={handleCreate}>
+    <div style={{ maxWidth: 600, margin: "2rem auto", fontFamily: "sans-serif", padding: "1rem" }}>
+      <h1 style={{ textAlign: "center", marginBottom: "1.5rem" }}>URL Shortener</h1>
+      <form onSubmit={handleCreate} style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
         <input
           type="url"
           required
           value={form.url}
           onChange={(e) => setForm((s) => ({ ...s, url: e.target.value }))}
           placeholder="https://example.com/very/long/link"
+          style={{ padding: "0.5rem", borderRadius: 4, border: "1px solid #ccc" }}
         />
         <input
           type="text"
           value={form.validity}
           onChange={(e) => setForm((s) => ({ ...s, validity: e.target.value }))}
           placeholder="Validity in minutes (optional)"
+          style={{ padding: "0.5rem", borderRadius: 4, border: "1px solid #ccc" }}
         />
         <input
           type="text"
           value={form.code}
           onChange={(e) => setForm((s) => ({ ...s, code: e.target.value }))}
           placeholder="Custom shortcode (optional)"
+          style={{ padding: "0.5rem", borderRadius: 4, border: "1px solid #ccc" }}
         />
-        <button type="submit" disabled={!canSubmit || creating}>
+        <button
+          type="submit"
+          disabled={!canSubmit || creating}
+          style={{
+            padding: "0.6rem",
+            backgroundColor: canSubmit ? "#007bff" : "#999",
+            color: "#fff",
+            border: "none",
+            borderRadius: 4,
+            cursor: canSubmit ? "pointer" : "not-allowed",
+          }}
+        >
           {creating ? "Creating..." : "Create"}
         </button>
+
       </form>
 
-      {createErr && <p style={{ color: "red" }}>{createErr}</p>}
+      {createErr && <p style={{ color: "red", marginTop: "0.5rem" }}>{createErr}</p>}
       {createdInfo && (
-        <div>
+        <div style={{ marginTop: "1rem", padding: "1rem", border: "1px solid #ddd", borderRadius: 4 }}>
           <p>
             Short URL:{" "}
             <a href={createdInfo.shortUrl} target="_blank" rel="noreferrer">
@@ -135,22 +139,33 @@ export default function App() {
         </div>
       )}
 
-      {/* Stats Section */}
-      <div>
+      <div style={{ marginTop: "2rem", display: "flex", gap: "0.5rem" }}>
         <input
           type="text"
           value={codeQuery}
           onChange={(e) => setCodeQuery(e.target.value)}
           placeholder="Enter shortcode to fetch stats"
+          style={{ flex: 1, padding: "0.5rem", borderRadius: 4, border: "1px solid #ccc" }}
         />
-        <button onClick={fetchStats} disabled={loadingStats}>
+        <button
+          onClick={fetchStats}
+          disabled={loadingStats}
+          style={{
+            padding: "0.6rem",
+            backgroundColor: "#28a745",
+            color: "#fff",
+            border: "none",
+            borderRadius: 4,
+            cursor: loadingStats ? "wait" : "pointer",
+          }}
+        >
           {loadingStats ? "Loading..." : "Get Stats"}
         </button>
       </div>
 
-      {statsErr && <p style={{ color: "red" }}>{statsErr}</p>}
+      {statsErr && <p style={{ color: "red", marginTop: "0.5rem" }}>{statsErr}</p>}
       {stats && (
-        <div>
+        <div style={{ marginTop: "1rem", padding: "1rem", border: "1px solid #ddd", borderRadius: 4 }}>
           <h3>Statistics for {codeQuery}</h3>
           <p>Original URL: {stats.url}</p>
           <p>Created At: {new Date(stats.createdAt).toLocaleString()}</p>

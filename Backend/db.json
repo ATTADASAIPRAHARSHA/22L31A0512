@@ -1,0 +1,18 @@
+{
+  "urls": {
+    "12345": {
+      "url": "https://google.com",
+      "code": "12345",
+      "clicks": 0,
+      "createdAt": 1756970002623,
+      "expiry": 1756972402623
+    },
+    "123455": {
+      "url": "https:/google.com",
+      "code": "123455",
+      "clicks": 0,
+      "createdAt": 1756970408963,
+      "expiry": 1756971608963
+    }
+  }
+}
