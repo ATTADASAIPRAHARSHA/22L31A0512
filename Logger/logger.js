@@ -18,12 +18,7 @@ export default async function Log(stack, level, pkg, message) {
     message,
   };
 
-  try {
-    fs.appendFileSync(logFile, JSON.stringify(logEntry) + "\n");
-  } catch (err) {
-    console.error("Failed to write log to file:", err.message);
-  }
-
+  
   try {
     if (!ACCESS_TOKEN) {
       console.error("Missing access token. Cannot send logs.");
